@@ -13,6 +13,12 @@ local function generateItems(records, profileData, renderItemText)
         end
         local uri = Bsky.util.atUriToWebUri(item.post.uri)
         local pubDateRaw = item.post.record.createdAt
+        if
+            item.reason
+            and item.reason["$type"] == "app.bsky.feed.defs#reasonRepost"
+        then
+            pubDateRaw = item.reason.indexedAt
+        end
         local pubDate = Date(pubDateRaw):fmt("${rfc1123}")
         local itemText, itemAuthors = renderItemText(item, profileData, uri)
         local authors = ""

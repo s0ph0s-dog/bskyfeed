@@ -19,6 +19,7 @@ SRCS := src/.init.lua \
 TEST_LIBS := lib/third_party/luaunit.lua
 
 # Infrastructure variables here
+ROOT_DIR := $(shell pwd)
 ABOUT_FILE := $(SRV_DIR)/.lua/about.lua
 REDBEAN := redbean-$(REDBEAN_VERSION).com
 TEST_REDBEAN := test-$(REDBEAN)
@@ -117,8 +118,10 @@ $(SRV_DIR)/%.js: src/%.js | $$(@D)/.
 # into itself.
 $(OUTPUT): $(REDBEAN) $(SRCS_OUT) $(LIBS_OUT) $(ABOUT_FILE)
 	if [ ! -f "$@" ]; then cp "$(REDBEAN)" "$@"; fi
-	cd srv && zip -R "../$@" $(patsubst $(SRV_DIR)/%,%,$(filter-out $<,$?))
+	chmod u+w "$@"
+	cd srv && zip -R "$(ROOT_DIR)/$@" $(patsubst $(SRV_DIR)/%,%,$(filter-out $<,$?))
 
 $(TEST_REDBEAN): $(REDBEAN) $(SRCS_OUT) $(LIBS_OUT) $(TEST_LIBS_OUT) $(ABOUT_FILE)
 	if [ ! -f "$@" ]; then cp "$(REDBEAN)" "$@"; fi
-	cd srv && zip -R "../$@" $(patsubst $(SRV_DIR)/%,%,$(filter-out $<,$?))
+	chmod u+w "$@"
+	cd srv && zip -R "$(ROOT_DIR)/$@" $(patsubst $(SRV_DIR)/%,%,$(filter-out $<,$?))

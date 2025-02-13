@@ -7,11 +7,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1739401603,
-        "narHash": "sha256-M309+39YlzMXJhJlvLz8x5vA4PR+qxTk4f2U14ApbVU=",
+        "lastModified": 1739428434,
+        "narHash": "sha256-rJkxq/4RE0bzCM8VxbEChUTLLbQ2XzIsLS1qffOKWY4=",
         "owner": "s0ph0s-dog",
         "repo": "cosmopolitan",
-        "rev": "8ffe1c399e86777d80ba52d3ff445f11caec760f",
+        "rev": "c7ee711f5997c5ff00ac4c4921badc1c9c0eac3f",
         "type": "github"
       },
       "original": {
@@ -23,11 +23,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1739206421,
-        "narHash": "sha256-PwQASeL2cGVmrtQYlrBur0U20Xy07uSWVnFup2PHnDs=",
+        "lastModified": 1739357830,
+        "narHash": "sha256-9xim3nJJUFbVbJCz48UP4fGRStVW5nv4VdbimbKxJ3I=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "44534bc021b85c8d78e465021e21f33b856e2540",
+        "rev": "0ff09db9d034a04acd4e8908820ba0b410d7a33a",
         "type": "github"
       },
       "original": {

@@ -91,8 +91,10 @@
         {
           nixpkgs.overlays = [ self.overlay ];
 
+          users.groups.bskyfeed = {}
           users.users.bskyfeed = {
             isSystemUser = true;
+            group = "bskyfeed";
           };
           systemd.services.bskyfeed = {
             path = [ pkgs.bskyfeed ];

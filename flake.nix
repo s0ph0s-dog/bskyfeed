@@ -91,7 +91,7 @@
         {
           nixpkgs.overlays = [ self.overlay ];
 
-          users.groups.bskyfeed = {}
+          users.groups.bskyfeed = {};
           users.users.bskyfeed = {
             isSystemUser = true;
             group = "bskyfeed";

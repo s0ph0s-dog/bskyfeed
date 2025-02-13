@@ -95,7 +95,7 @@
             isSystemUser = true;
           };
           systemd.services.bskyfeed = {
-            pkgs = [ pkgs.bskyfeed ];
+            path = [ pkgs.bskyfeed ];
             script = "bskyfeed.com -l 127.0.0.1";
             wantedBy = [ "multi-user.target" ];
             serviceConfig = {

@@ -29,8 +29,9 @@ CSSO_PATH := $(shell which csso)
 
 build: $(OUTPUT)
 
+ifeq (
 # This comes after build so that the build target is still the default.
-include Makefile.secret
+-include Makefile.secret
 
 clean:
 	rm -r $(SRV_DIR) $(TESTS_DIR)

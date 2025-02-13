@@ -29,7 +29,6 @@ CSSO_PATH := $(shell which csso)
 
 build: $(OUTPUT)
 
-ifeq (
 # This comes after build so that the build target is still the default.
 -include Makefile.secret
 
@@ -61,7 +60,7 @@ $(SRV_DIR)%/.:
 	mkdir -p $@
 
 $(ABOUT_FILE):
-	echo "return { NAME = 'werehouse (github.com/s0ph0s-2/werehouse)', VERSION = '$(VERSION)', REDBEAN_VERSION = '$(REDBEAN_VERSION)' }" > "$@"
+	echo "return { NAME = 'bskyfeed (github.com/s0ph0s-dog/bskyfeed)', VERSION = '$(VERSION)', REDBEAN_VERSION = '$(REDBEAN_VERSION)' }" > "$@"
 
 $(REDBEAN):
 	curl -sSL "https://redbean.dev/$(REDBEAN)" -o "$(REDBEAN)" && chmod +x $(REDBEAN)

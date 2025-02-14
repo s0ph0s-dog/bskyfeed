@@ -31,12 +31,12 @@
     nixpkgsFor = forAllSystems (system:
       import nixpkgs {
         inherit system;
-        overlays = [self.overlay];
+        overlays = [ self.overlays.default ];
       });
   in {
     formatter.x86_64-darwin = nixpkgs.legacyPackages.x86_64-darwin.alejandra;
     # A Nixpkgs overlay.
-    overlay = final: prev: {
+    overlays.default = final: prev: {
       bskyfeed = final.stdenv.mkDerivation rec {
           pname = "bskyfeed";
           inherit version;
@@ -44,7 +44,7 @@
           src = ./.;
 
           nativeBuildInputs = [
-            cosmo.defaultPackage.${final.pkgs.stdenv.hostPlatform.system}
+            cosmo.packages.${final.pkgs.stdenv.hostPlatform.system}.default
             final.zip
             final.gnumake
           ];
@@ -57,7 +57,7 @@
           buildPhase = ''
             runHook preBuild
 
-            cp "${cosmo.defaultPackage.${final.pkgs.stdenv.hostPlatform.system}}/bin/redbean" ./redbean-3.0beta.com
+            cp "${cosmo.packages.${final.pkgs.stdenv.hostPlatform.system}.default}/bin/redbean" ./redbean-3.0beta.com
             ls .
             make build
 
@@ -78,16 +78,12 @@
     # Provide some binary packages for selected system types.
     packages = forAllSystems (system: {
       inherit (nixpkgsFor.${system}) bskyfeed;
+      default = self.packages.${system}.bskyfeed;
     });
-
-    # The default package for 'nix build'. This makes sense if the
-    # flake provides only one package or there is a clear "main"
-    # package.
-    defaultPackage = forAllSystems (system: self.packages.${system}.bskyfeed);
 
     # A NixOS module, if applicable (e.g. if the package provides a system service).
     nixosModules.bskyfeed = {pkgs, ...}: {
-      nixpkgs.overlays = [self.overlay];
+      nixpkgs.overlays = [ self.overlays.default ];
 
       users.groups.bskyfeed = {};
       users.users.bskyfeed = {

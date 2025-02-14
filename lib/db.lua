@@ -29,6 +29,13 @@ local Cache = {}
 ---@return Cache
 function Cache:new(o)
     o = o or {}
+    local ok, dir_err = unix.makedirs(".", 0750)
+    if not ok then
+        error(
+            "Unable to create working directory for cache: "
+                .. tostring(dir_err)
+        )
+    end
     o.conn = Fm.makeStorage(CACHE_DB_FILE, cache_setup)
     setmetatable(o, self)
     self.__index = self

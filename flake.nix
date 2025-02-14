@@ -97,7 +97,7 @@
         serviceConfig = {
           Type = "simple";
           User = "bskyfeed";
-          WorkingDirectory = "/tmp/bskyfeed";
+          WorkingDirectory = "-/tmp/bskyfeed";
         };
       };
     };

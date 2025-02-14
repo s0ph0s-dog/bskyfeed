@@ -93,7 +93,8 @@
       };
       systemd.services.bskyfeed = {
         path = [pkgs.bskyfeed];
-        script = "bskyfeed.com -l 127.0.0.1";
+        script = let system = pkgs.stdenv.hostPlatform.system; in
+        "${cosmo.packages.${system}.default}/bin/ape ${self.packages.${system}.default}/bin/bskyfeed.com -l 127.0.0.1";
         wantedBy = ["multi-user.target"];
         serviceConfig = {
           Type = "simple";

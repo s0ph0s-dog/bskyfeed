@@ -104,7 +104,7 @@
         enableNginxVhost = lib.mkEnableOption "nginx virtual host configuration for reverse-proxying bskyfeed (and doing TLS)";
 
         publicDomainName = lib.mkOption {
-          type = lib.types.nullOr lib.types.string;
+          type = lib.types.nullOr lib.types.str;
           example = "bskyfeed.example.com";
           default = null;
           description = "The public hostname for the nginx virtual host and TLS certificates";

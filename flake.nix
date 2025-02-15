@@ -146,7 +146,7 @@
               message = "if enableNginxVhost is set, you must provide publicDomainName";
             }
           ];
-          virtualHosts.${cfg.publicDomainName} = {
+          services.nginx.virtualHosts.${cfg.publicDomainName} = {
             forceSSL = true;
             enableACME = true;
             locations."/" = {

@@ -100,35 +100,70 @@
           example = [80 443];
           description = "The port numbers that bskyfeed should listen on.";
         };
+
+        enableNginxVhost = lib.mkEnableOption "nginx virtual host configuration for reverse-proxying bskyfeed (and doing TLS)";
+
+        publicDomainName = lib.mkOption {
+          type = lib.types.nullOr lib.types.string;
+          example = "bskyfeed.example.com";
+          default = null;
+          description = "The public hostname for the nginx virtual host and TLS certificates";
+        };
       };
 
-      config = lib.mkIf cfg.enable {
-        nixpkgs.overlays = [self.overlays.default];
+      config = lib.mkMerge [
+        (lib.mkIf cfg.enable {
+          nixpkgs.overlays = [self.overlays.default];
 
-        users.groups.bskyfeed = {};
-        users.users.bskyfeed = {
-          isSystemUser = true;
-          group = "bskyfeed";
-        };
-        systemd.tmpfiles.rules = [
-          "d /tmp/bskyfeed bskyfeed bskyfeed"
-        ];
-        systemd.services.bskyfeed = {
-          path = [pkgs.bskyfeed];
-          script = let
-            system = pkgs.stdenv.hostPlatform.system;
-            ape = "${cosmo.packages.${system}.default}/bin/ape";
-            bskyfeed = "${self.packages.${system}.default}/bin/bskyfeed.com";
-            portString = toString (map (port: "-p ${toString port}") cfg.ports);
-          in "${ape} ${bskyfeed} -l 127.0.0.1 ${portString}";
-          wantedBy = ["multi-user.target"];
-          serviceConfig = {
-            Type = "simple";
-            User = "bskyfeed";
-            WorkingDirectory = "/tmp/bskyfeed";
+          users.groups.bskyfeed = {};
+          users.users.bskyfeed = {
+            isSystemUser = true;
+            group = "bskyfeed";
           };
-        };
-      };
+          systemd.tmpfiles.rules = [
+            "d /tmp/bskyfeed bskyfeed bskyfeed"
+          ];
+          systemd.services.bskyfeed = {
+            path = [pkgs.bskyfeed];
+            script = let
+              system = pkgs.stdenv.hostPlatform.system;
+              ape = "${cosmo.packages.${system}.default}/bin/ape";
+              bskyfeed = "${self.packages.${system}.default}/bin/bskyfeed.com";
+              portString = toString (map (port: "-p ${toString port}") cfg.ports);
+            in "${ape} ${bskyfeed} -l 127.0.0.1 ${portString}";
+            wantedBy = ["multi-user.target"];
+            serviceConfig = {
+              Type = "simple";
+              User = "bskyfeed";
+              WorkingDirectory = "/tmp/bskyfeed";
+            };
+          };
+        })
+        (lib.mkIf (cfg.enable && cfg.enableNginxVhost) {
+          assertions = [
+            {
+              assertion = cfg.publicDomainName != null;
+              message = "if enableNginxVhost is set, you must provide publicDomainName";
+            }
+          ];
+          virtualHosts.${cfg.publicDomainName} = {
+            forceSSL = true;
+            enableACME = true;
+            locations."/" = {
+              proxyPass = let
+                port = toString (builtins.head cfg.ports);
+              in "http://127.0.0.1:${port}";
+              recommendedProxySettings = true;
+              extraConfig = ''
+                proxy_http_version 1.1;
+                proxy_buffering off;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "Upgrade";
+              '';
+            };
+          };
+        })
+      ];
     };
   };
 }

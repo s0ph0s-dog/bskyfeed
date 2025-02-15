@@ -31,48 +31,48 @@
     nixpkgsFor = forAllSystems (system:
       import nixpkgs {
         inherit system;
-        overlays = [ self.overlays.default ];
+        overlays = [self.overlays.default];
       });
   in {
     formatter.x86_64-darwin = nixpkgs.legacyPackages.x86_64-darwin.alejandra;
     # A Nixpkgs overlay.
     overlays.default = final: prev: {
       bskyfeed = final.stdenv.mkDerivation rec {
-          pname = "bskyfeed";
-          inherit version;
+        pname = "bskyfeed";
+        inherit version;
 
-          src = ./.;
+        src = ./.;
 
-          nativeBuildInputs = [
-            cosmo.packages.${final.pkgs.stdenv.hostPlatform.system}.default
-            final.zip
-            final.gnumake
-          ];
+        nativeBuildInputs = [
+          cosmo.packages.${final.pkgs.stdenv.hostPlatform.system}.default
+          final.zip
+          final.gnumake
+        ];
 
-          dontCheck = true;
-          dontPatch = true;
-          dontConfigure = true;
-          dontFixup = true;
+        dontCheck = true;
+        dontPatch = true;
+        dontConfigure = true;
+        dontFixup = true;
 
-          buildPhase = ''
-            runHook preBuild
+        buildPhase = ''
+          runHook preBuild
 
-            cp "${cosmo.packages.${final.pkgs.stdenv.hostPlatform.system}.default}/bin/redbean" ./redbean-3.0beta.com
-            ls .
-            make build
+          cp "${cosmo.packages.${final.pkgs.stdenv.hostPlatform.system}.default}/bin/redbean" ./redbean-3.0beta.com
+          ls .
+          make build
 
-            runHook postBuild
-          '';
+          runHook postBuild
+        '';
 
-          installPhase = ''
-            runHook preInstall
+        installPhase = ''
+          runHook preInstall
 
-            mkdir -p $out/bin
-            install bskyfeed.com $out/bin
+          mkdir -p $out/bin
+          install bskyfeed.com $out/bin
 
-            runHook postInstall
-          '';
-        };
+          runHook postInstall
+        '';
+      };
     };
 
     # Provide some binary packages for selected system types.
@@ -82,23 +82,51 @@
     });
 
     # A NixOS module, if applicable (e.g. if the package provides a system service).
-    nixosModules.bskyfeed = {pkgs, ...}: {
-      imports = [ cosmo.nixosModules.default ];
-      nixpkgs.overlays = [ self.overlays.default ];
+    nixosModules.bskyfeed = {
+      lib,
+      pkgs,
+      config,
+      ...
+    }: let
+      cfg = config.services.bskyfeed;
+    in {
+      imports = [cosmo.nixosModules.default];
 
-      users.groups.bskyfeed = {};
-      users.users.bskyfeed = {
-        isSystemUser = true;
-        group = "bskyfeed";
+      options.services.bskyfeed = {
+        enable = lib.mkEnableOption "bskyfeed Bluesky RSS feed generator service";
+        ports = lib.mkOption {
+          type = lib.types.listOf lib.types.port;
+          default = [8080];
+          example = [80 443];
+          description = "The port numbers that bskyfeed should listen on.";
+        };
       };
-      systemd.services.bskyfeed = {
-        path = [pkgs.bskyfeed];
-        script = let system = pkgs.stdenv.hostPlatform.system; in
-        "mkdir -p /tmp/bskyfeed && cd /tmp/bskyfeed && ${cosmo.packages.${system}.default}/bin/ape ${self.packages.${system}.default}/bin/bskyfeed.com -l 127.0.0.1";
-        wantedBy = ["multi-user.target"];
-        serviceConfig = {
-          Type = "simple";
-          User = "bskyfeed";
+
+      config = lib.mkIf cfg.enable {
+        nixpkgs.overlays = [self.overlays.default];
+
+        users.groups.bskyfeed = {};
+        users.users.bskyfeed = {
+          isSystemUser = true;
+          group = "bskyfeed";
+        };
+        systemd.tmpfiles.rules = [
+          "d /tmp/bskyfeed bskyfeed bskyfeed"
+        ];
+        systemd.services.bskyfeed = {
+          path = [pkgs.bskyfeed];
+          script = let
+            system = pkgs.stdenv.hostPlatform.system;
+            ape = "${cosmo.packages.${system}.default}/bin/ape";
+            bskyfeed = "${self.packages.${system}.default}/bin/bskyfeed.com";
+            portString = toString (map (port: "-p ${toString port}") cfg.ports);
+          in "${ape} ${bskyfeed} -l 127.0.0.1 ${portString}";
+          wantedBy = ["multi-user.target"];
+          serviceConfig = {
+            Type = "simple";
+            User = "bskyfeed";
+            WorkingDirectory = "/tmp/bskyfeed";
+          };
         };
       };
     };

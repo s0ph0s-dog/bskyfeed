@@ -458,11 +458,11 @@ end
 ---@class BskyPostRecord
 ---@field ["$type"] "app.bsky.feed.post"
 ---@field createdAt string
----@field embed table
+---@field embed BskyEmbed?
 ---@field facets BskyFacet[]?
----@field labels table[]
+---@field labels BskyLabel[]?
 ---@field langs string[]
----@field text string
+---@field text string?
 
 ---@class BskyPostView
 ---@field ["$type"] "app.bsky.feed.defs.postView"
@@ -470,12 +470,12 @@ end
 ---@field cid string Post ID
 ---@field author BskyAuthor the user who posted this
 ---@field record BskyRecord
----@field embed BskyEmbed
+---@field embed BskyEmbed?
 ---@field replyCount integer
 ---@field repostCount integer
 ---@field likeCount integer
 ---@field quoteCount integer
----@field labels BskyLabel[]
+---@field labels BskyLabel[]?
 
 ---@class BskyReply
 ---@field root BskyPostView|BskyNotFoundPost|BskyBlockedPost

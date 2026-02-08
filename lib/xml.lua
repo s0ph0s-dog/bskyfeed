@@ -46,12 +46,23 @@ local function escapeAttr(value)
     return result
 end
 
+--- Some characters are valid in HTML, but prohibited in XML. Notably, ASCII control characters.
+--- @param value string The text string to escape.
+--- @return string? # A new string where invalid characters have been escaped or replaced with �
+local function escapeXML(value)
+    if not value then
+        return nil
+    end
+    local result = value:gsub("[\000-\008\011\012\014-\031]", "�")
+    return result
+end
+
 --- Create an XML text node.
 --- @param value string The text value to add.
 --- @return string A string that contains similar text, with appropriate
 --- escaping to ensure it does not contain valid elements.
 local function text(value)
-    return EscapeHtml(value)
+    return escapeXML(EscapeHtml(value))
 end
 
 --- Create an XML CDATA node.

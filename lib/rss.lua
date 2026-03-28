@@ -13,11 +13,19 @@ local function generateItems(records, profileData, renderItemText)
         end
         local uri = Bsky.util.atUriToWebUri(item.post.uri)
         local pubDateRaw = item.post.record.createdAt
+        local guid =
+            Xml.tag("guid", false, { isPermaLink = "true" }, Xml.text(uri))
         if
             item.reason
             and item.reason["$type"] == "app.bsky.feed.defs#reasonRepost"
         then
             pubDateRaw = item.reason.indexedAt
+            guid = Xml.tag(
+                "guid",
+                false,
+                { isPermaLink = "false" },
+                Xml.text(item.reason.uri)
+            )
         end
         local pubDate = Date(pubDateRaw):fmt("${rfc1123}")
         local itemText, itemAuthors = renderItemText(item, profileData, uri)
@@ -39,7 +47,7 @@ local function generateItems(records, profileData, renderItemText)
                 Xml.tag("link", false, Xml.text(uri)),
                 Xml.tag("description", false, Xml.cdata(itemText)),
                 Xml.tag("pubDate", false, Xml.text(pubDate)),
-                Xml.tag("guid", false, { isPermaLink = "true" }, Xml.text(uri)),
+                guid,
                 authors
             )
         )

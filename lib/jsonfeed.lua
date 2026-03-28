@@ -36,14 +36,16 @@ local function generateItems(records, profileData, renderItemText)
             })
         end
         local date_published = item.post.record.createdAt
+        local post_id = uri
         if
             item.reason
             and item.reason["$type"] == "app.bsky.feed.defs#reasonRepost"
         then
             date_published = item.reason.indexedAt
+            post_id = item.reason.uri
         end
         local jfItem = {
-            id = uri,
+            id = post_id,
             url = uri,
             content_html = itemText,
             date_published = date_published,
